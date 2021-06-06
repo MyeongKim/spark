@@ -6,7 +6,7 @@ on:
       class:
         description: 'Benchmark class'
         required: true
-        default: 'TPCDSQueryBenchmark'
+        default: '*'
       jdk:
         description: 'JDK version: 8 or 11'
         required: true
@@ -19,6 +19,10 @@ on:
         description: 'Number of job splits'
         required: true
         default: '1'
+      generate-tcp-ds-dataset:
+        description: 'Generate TCP-DS dataset to run TPCDSQueryBenchmark: true or false'
+        required: false
+        default: 'false'
 
 jobs:
   matrix-gen:
@@ -78,22 +82,23 @@ jobs:
         java-version: ${{ github.event.inputs.jdk }}
     - name: Cache TPC-DS generated data
       id: cache-tpcds-sf-1
+      if: github.event.inputs.generate-tcp-ds-dataset == 'true'
       uses: actions/cache@v2
       with:
         path: ./tpcds-sf-1
         key: tpcds-${{ hashFiles('.github/workflows/build_and_test.yml', 'sql/core/src/test/scala/org/apache/spark/sql/TPCDSSchema.scala') }}
     - name: Checkout tpcds-kit repository
-      if: steps.cache-tpcds-sf-1.outputs.cache-hit != 'true'
+      if: ${{ github.event.inputs.generate-tcp-ds-dataset == 'true' && steps.cache-tpcds-sf-1.outputs.cache-hit != 'true' }}
       uses: actions/checkout@v2
       with:
         repository: databricks/tpcds-kit
         ref: 2a5078a782192ddb6efbcead8de9973d6ab4f069
         path: ./tpcds-kit
     - name: Build tpcds-kit
-      if: steps.cache-tpcds-sf-1.outputs.cache-hit != 'true'
+      if: ${{ github.event.inputs.generate-tcp-ds-dataset == 'true' && steps.cache-tpcds-sf-1.outputs.cache-hit != 'true' }}
       run: cd tpcds-kit/tools && make OS=LINUX
     - name: Generate TPC-DS (SF=1) table data
-      if: steps.cache-tpcds-sf-1.outputs.cache-hit != 'true'
+      if: ${{ github.event.inputs.generate-tcp-ds-dataset == 'true' && steps.cache-tpcds-sf-1.outputs.cache-hit != 'true' }}
       run: build/sbt "sql/test:runMain org.apache.spark.sql.GenTPCDSData --dsdgenDir `pwd`/tpcds-kit/tools --location `pwd`/tpcds-sf-1 --scaleFactor 1 --numPartitions 1 --overwrite"
     - name: Run benchmarks
       run: |
@@ -107,7 +112,7 @@ jobs:
           --jars "`find . -name '*-SNAPSHOT-tests.jar' -o -name '*avro*-SNAPSHOT.jar' | paste -sd ',' -`" \
           "`find . -name 'spark-core*-SNAPSHOT-tests.jar'`" \
           "${{ github.event.inputs.class }}" \
-          --data-location `pwd`/tpcds-sf-1
+          if [[ "${{ github.event.inputs.class }}" == "true" ]]; then --data-location `pwd`/tpcds-sf-1; fi
         # To keep the directory structure and file permissions, tar them
         # See also https://github.com/actions/upload-artifact#maintaining-file-permissions-and-case-sensitive-files
         echo "Preparing the benchmark results:"
