@@ -70,6 +70,7 @@ class TPCDSQueryBenchmarkArguments(val args: Array[String]) {
       |------------------------------------------------------------------------------------------------------------------
       |In order to run this benchmark, please follow the instructions at
       |https://github.com/databricks/spark-sql-perf/blob/master/README.md
+      |TODO update comment here
       |to generate the TPCDS data locally (preferably with a scale factor of 5 for benchmarking).
       |Thereafter, the value of <TPCDS data location> needs to be set to the location where the generated data is stored.
       """.stripMargin)
