@@ -167,7 +167,7 @@ jobs:
           --driver-memory 6g --class org.apache.spark.benchmark.Benchmarks \
           --jars "`find . -name '*-SNAPSHOT-tests.jar' -o -name '*avro*-SNAPSHOT.jar' | paste -sd ',' -`" \
           "`find . -name 'spark-core*-SNAPSHOT-tests.jar'`" \
-          "org.apache.spark.sql.execution.benchmark.TPCDSQueryBenchmark" \
+          "*" \
           --data-location `pwd`/tpcds-sf-1
           # To keep the directory structure and file permissions, tar them
           # See also https://github.com/actions/upload-artifact#maintaining-file-permissions-and-case-sensitive-files
