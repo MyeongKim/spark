@@ -41,8 +41,8 @@ jobs:
     name: "Run benchmarks: ${{ matrix.class }} (JDK ${{ github.event.inputs.jdk }}, ${{ matrix.split }} out of ${{ github.event.inputs.num-splits }} splits)"
     # TPCDSQueryBenchmark needs to be executed only if generate-tcp-ds-dataset is 'true'
     if: |
-      github.event.inputs.class != "org.apache.spark.sql.execution.benchmark.TPCDSQueryBenchmark" ||
-      (github.event.inputs.class == "org.apache.spark.sql.execution.benchmark.TPCDSQueryBenchmark" && github.event.inputs.generate-tcp-ds-dataset == "true")
+      github.event.inputs.class != 'org.apache.spark.sql.execution.benchmark.TPCDSQueryBenchmark' ||
+      (github.event.inputs.class == 'org.apache.spark.sql.execution.benchmark.TPCDSQueryBenchmark' && github.event.inputs.generate-tcp-ds-dataset == 'true')
     needs: [matrix-gen, TCP-DS-benchmark]
     # Ubuntu 20.04 is the latest LTS. The next LTS is 22.04.
     runs-on: ubuntu-20.04
