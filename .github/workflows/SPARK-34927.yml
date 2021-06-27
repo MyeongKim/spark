@@ -30,7 +30,7 @@ jobs:
     runs-on: ubuntu-20.04
     outputs:
       split: ${{ steps.set-matrix.outputs.split }}
-      class: ${{ github.event.inputs.class }}
+      class: ${{ toJSON(github.event.inputs.class) }}
     env:
       SPARK_BENCHMARK_NUM_SPLITS: ${{ github.event.inputs.num-splits }}
     steps:
