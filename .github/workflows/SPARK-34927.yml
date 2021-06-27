@@ -42,16 +42,20 @@ jobs:
     # TPCDSQueryBenchmark needs to be executed only if generate-tcp-ds-dataset is 'true'
     if: |
       github.event.inputs.class != 'org.apache.spark.sql.execution.benchmark.TPCDSQueryBenchmark' ||
-      (github.event.inputs.class == 'org.apache.spark.sql.execution.benchmark.TPCDSQueryBenchmark' && github.event.inputs.generate-tcp-ds-dataset == 'true')
+      (
+      github.event.inputs.class == 'org.apache.spark.sql.execution.benchmark.TPCDSQueryBenchmark' &&
+      github.event.inputs.generate-tcp-ds-dataset == 'true' &&
+      matrix.benchmark-arg
+      )
     needs: [matrix-gen, TCP-DS-benchmark]
     # Ubuntu 20.04 is the latest LTS. The next LTS is 22.04.
     runs-on: ubuntu-20.04
     strategy:
       fail-fast: false
       matrix:
+        class: ${{ github.event.inputs.class }}
+        split: ${{ fromJSON(needs.matrix-gen.outputs.matrix) }}
         include:
-          - class: ${{ github.event.inputs.class }}
-            split: ${{ fromJSON(needs.matrix-gen.outputs.matrix) }}
           - class: org.apache.spark.sql.execution.benchmark.TPCDSQueryBenchmark
             split: 1
             benchmark-arg: "--data-location `pwd`/tpcds-sf-1"
