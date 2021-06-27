@@ -80,6 +80,12 @@ jobs:
       uses: actions/setup-java@v1
       with:
         java-version: ${{ github.event.inputs.jdk }}
+    - name: Cache TPC-DS generated data
+      id: cache-tpcds-sf-1
+      uses: actions/cache@v2
+      with:
+        path: ./tpcds-sf-1
+        key: tpcds-${{ hashFiles('.github/workflows/benchmark.yml', 'sql/core/src/test/scala/org/apache/spark/sql/TPCDSSchema.scala') }}
     - name: Run benchmarks
       run: |
         ./build/sbt -Pyarn -Pmesos -Pkubernetes -Phive -Phive-thriftserver -Phadoop-cloud -Pkinesis-asl -Pspark-ganglia-lgpl test:package
@@ -143,7 +149,7 @@ jobs:
         uses: actions/cache@v2
         with:
           path: ./tpcds-sf-1
-          key: tpcds-${{ hashFiles('.github/workflows/build_and_test.yml', 'sql/core/src/test/scala/org/apache/spark/sql/TPCDSSchema.scala') }}
+          key: tpcds-${{ hashFiles('.github/workflows/benchmark.yml', 'sql/core/src/test/scala/org/apache/spark/sql/TPCDSSchema.scala') }}
       - name: Checkout tpcds-kit repository
         if: steps.cache-tpcds-sf-1.outputs.cache-hit != 'true'
         uses: actions/checkout@v2
