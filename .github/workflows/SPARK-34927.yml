@@ -29,8 +29,8 @@ jobs:
     name: Generate matrix for job splits
     runs-on: ubuntu-20.04
     outputs:
-      split: ${{ steps.set-matrix.outputs.split }}
       class: ${{ toJSON(github.event.inputs.class) }}
+      split: ${{ steps.set-matrix.outputs.split }}
     env:
       SPARK_BENCHMARK_NUM_SPLITS: ${{ github.event.inputs.num-splits }}
     steps:
@@ -47,7 +47,7 @@ jobs:
       fail-fast: false
       matrix:
         class: ${{ fromJSON(needs.matrix-gen.outputs.class) }}
-        split: ${{ fromJSON(needs.matrix-gen.outputs.matrix) }}
+        split: ${{ fromJSON(needs.matrix-gen.outputs.split) }}
         include:
           - class: org.apache.spark.sql.execution.benchmark.TPCDSQueryBenchmark
             split: 1
