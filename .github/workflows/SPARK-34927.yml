@@ -30,15 +30,13 @@ jobs:
     runs-on: ubuntu-20.04
     outputs:
       split: ${{ steps.set-matrix.outputs.split }}
-      class: ${{ steps.set-matrix.outputs.class }}
+      class: ${{ github.event.inputs.class }}
     env:
       SPARK_BENCHMARK_NUM_SPLITS: ${{ github.event.inputs.num-splits }}
     steps:
     - name: Generate matrix
       id: set-matrix
-      run: |
-      echo "::set-output name=split::["`seq -s, 1 $SPARK_BENCHMARK_NUM_SPLITS`"]"
-      echo "::set-output name=class::${{ github.event.inputs.class }}"
+      run: echo "::set-output name=split::["`seq -s, 1 $SPARK_BENCHMARK_NUM_SPLITS`"]"
 
   benchmark:
     name: "Run benchmarks: ${{ matrix.class }} (JDK ${{ github.event.inputs.jdk }}, ${{ matrix.split }} out of ${{ github.event.inputs.num-splits }} splits)"
