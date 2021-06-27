@@ -50,6 +50,7 @@ jobs:
       SPARK_BENCHMARK_FAILFAST: ${{ github.event.inputs.failfast }}
       SPARK_BENCHMARK_NUM_SPLITS: ${{ github.event.inputs.num-splits }}
       SPARK_BENCHMARK_CUR_SPLIT: ${{ matrix.split }}
+      SPARK_BENCHMARK_ARG
       SPARK_GENERATE_BENCHMARK_FILES: 1
       SPARK_LOCAL_IP: localhost
     steps:
@@ -98,7 +99,7 @@ jobs:
           --jars "`find . -name '*-SNAPSHOT-tests.jar' -o -name '*avro*-SNAPSHOT.jar' | paste -sd ',' -`" \
           "`find . -name 'spark-core*-SNAPSHOT-tests.jar'`" \
           "${{ github.event.inputs.class }}" \
-          --data-location ~/tpcds-sf-1
+          --data-location `pwd`/tpcds-sf-1
         # To keep the directory structure and file permissions, tar them
         # See also https://github.com/actions/upload-artifact#maintaining-file-permissions-and-case-sensitive-files
         echo "Preparing the benchmark results:"
