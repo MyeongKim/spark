@@ -39,14 +39,6 @@ jobs:
 
   benchmark:
     name: "Run benchmarks: ${{ matrix.class }} (JDK ${{ github.event.inputs.jdk }}, ${{ matrix.split }} out of ${{ github.event.inputs.num-splits }} splits)"
-    # TPCDSQueryBenchmark needs to be executed only if generate-tcp-ds-dataset is 'true'
-    if: |
-      github.event.inputs.class != 'org.apache.spark.sql.execution.benchmark.TPCDSQueryBenchmark' ||
-      (
-      github.event.inputs.class == 'org.apache.spark.sql.execution.benchmark.TPCDSQueryBenchmark' &&
-      github.event.inputs.generate-tcp-ds-dataset == 'true' &&
-      matrix.benchmark-arg
-      )
     needs: [matrix-gen, TCP-DS-benchmark]
     # Ubuntu 20.04 is the latest LTS. The next LTS is 22.04.
     runs-on: ubuntu-20.04
@@ -102,6 +94,12 @@ jobs:
         path: ./tpcds-sf-1
         key: tpcds-${{ hashFiles('.github/workflows/benchmark.yml', 'sql/core/src/test/scala/org/apache/spark/sql/TPCDSSchema.scala') }}
     - name: Run benchmarks
+      # TPCDSQueryBenchmark needs to be executed only if generate-tcp-ds-dataset is 'true'
+      if: |
+        matrix.class != 'org.apache.spark.sql.execution.benchmark.TPCDSQueryBenchmark' ||
+        (matrix.class == 'org.apache.spark.sql.execution.benchmark.TPCDSQueryBenchmark' &&
+        github.event.inputs.generate-tcp-ds-dataset == 'true' &&
+        matrix.benchmark-arg)
       run: |
         ./build/sbt -Pyarn -Pmesos -Pkubernetes -Phive -Phive-thriftserver -Phadoop-cloud -Pkinesis-asl -Pspark-ganglia-lgpl test:package
         # Make less noisy
