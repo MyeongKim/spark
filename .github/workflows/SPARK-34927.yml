@@ -49,9 +49,9 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        split: ${{fromJSON(needs.matrix-gen.outputs.matrix)}}
-        class: ${{ github.event.inputs.class }}
         include:
+          - class: ${{ github.event.inputs.class }}
+            split: ${{ fromJSON(needs.matrix-gen.outputs.matrix) }}
           - class: org.apache.spark.sql.execution.benchmark.TPCDSQueryBenchmark
             split: 1
             benchmark-arg: "--data-location `pwd`/tpcds-sf-1"
