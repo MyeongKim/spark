@@ -38,7 +38,11 @@ jobs:
       run: echo "::set-output name=matrix::["`seq -s, 1 $SPARK_BENCHMARK_NUM_SPLITS`"]"
 
   benchmark:
-    name: "Run benchmarks: ${{ github.event.inputs.class }} (JDK ${{ github.event.inputs.jdk }}, ${{ matrix.split }} out of ${{ github.event.inputs.num-splits }} splits)"
+    name: "Run benchmarks: ${{ matrix.class }} (JDK ${{ github.event.inputs.jdk }}, ${{ matrix.split }} out of ${{ github.event.inputs.num-splits }} splits)"
+    # TPCDSQueryBenchmark needs to be executed only if generate-tcp-ds-dataset is 'true'
+    if: |
+      matrix.class != 'org.apache.spark.sql.execution.benchmark.TPCDSQueryBenchmark' ||
+      (matrix.class == 'org.apache.spark.sql.execution.benchmark.TPCDSQueryBenchmark' && github.event.inputs.generate-tcp-ds-dataset == 'true')
     needs: [matrix-gen, TCP-DS-benchmark]
     # Ubuntu 20.04 is the latest LTS. The next LTS is 22.04.
     runs-on: ubuntu-20.04
@@ -46,11 +50,17 @@ jobs:
       fail-fast: false
       matrix:
         split: ${{fromJSON(needs.matrix-gen.outputs.matrix)}}
+        class: ${{ github.event.inputs.class }}
+        include:
+          - class: org.apache.spark.sql.execution.benchmark.TPCDSQueryBenchmark
+            split: 1
+            benchmark-arg: "--data-location `pwd`/tpcds-sf-1"
     env:
       SPARK_BENCHMARK_FAILFAST: ${{ github.event.inputs.failfast }}
       SPARK_BENCHMARK_NUM_SPLITS: ${{ github.event.inputs.num-splits }}
+      SPARK_BENCHMARK_CLASS: ${{ matrix.class }}
+      SPARK_BENCHMARK_ARG: ${{ matrix.benchmark-arg }}
       SPARK_BENCHMARK_CUR_SPLIT: ${{ matrix.split }}
-#      SPARK_BENCHMARK_ARG
       SPARK_GENERATE_BENCHMARK_FILES: 1
       SPARK_LOCAL_IP: localhost
     steps:
@@ -98,8 +108,8 @@ jobs:
           --driver-memory 6g --class org.apache.spark.benchmark.Benchmarks \
           --jars "`find . -name '*-SNAPSHOT-tests.jar' -o -name '*avro*-SNAPSHOT.jar' | paste -sd ',' -`" \
           "`find . -name 'spark-core*-SNAPSHOT-tests.jar'`" \
-          "${{ github.event.inputs.class }}" \
-          --data-location `pwd`/tpcds-sf-1
+          $SPARK_BENCHMARK_CLASS \
+          $SPARK_BENCHMARK_ARG
         # To keep the directory structure and file permissions, tar them
         # See also https://github.com/actions/upload-artifact#maintaining-file-permissions-and-case-sensitive-files
         echo "Preparing the benchmark results:"
