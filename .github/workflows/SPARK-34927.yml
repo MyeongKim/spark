@@ -39,7 +39,7 @@ jobs:
       id: set-matrix
       run: |
         echo "::set-output name=split::["`seq -s, 1 $SPARK_BENCHMARK_NUM_SPLITS`"]"
-        echo "::set-output name=class::[`$SPARK_BENCHMARK_CLASS`]"
+        echo "::set-output name=class::[$SPARK_BENCHMARK_CLASS]"
 
   benchmark:
     name: "Run benchmarks: ${{ matrix.class }} (JDK ${{ github.event.inputs.jdk }}, ${{ matrix.split }} out of ${{ github.event.inputs.num-splits }} splits)"
