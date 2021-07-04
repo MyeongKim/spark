@@ -96,9 +96,9 @@ object Benchmarks {
       require(args.length > 0, "Benchmark class to run should be specified.")
       if (
           info.getName.endsWith("Benchmark") &&
-          // Is TPCDS Datset provided?
           (
             !info.getName.endsWith("TPCDSQueryBenchmark") ||
+            // Is TPCDS Datset provided?
             (info.getName.endsWith("TPCDSQueryBenchmark") && args.contains("--data-location"))
           ) &&
           matcher.matches(Paths.get(info.getName)) &&
