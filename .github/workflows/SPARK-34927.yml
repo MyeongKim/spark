@@ -38,7 +38,7 @@ jobs:
       id: set-matrix
       run: |
         echo "::set-output name=split::["`seq -s, 1 $SPARK_BENCHMARK_NUM_SPLITS`"]"
-        echo "::set-output name=class::["`${{ github.event.inputs.class }}`"]"
+        echo "::set-output name=class::["org.apache.spark.sql.execution.benchmark.TPCDSQueryBenchmark"]"
 
   benchmark:
     name: "Run benchmarks: ${{ matrix.class }} (JDK ${{ github.event.inputs.jdk }}, ${{ matrix.split }} out of ${{ github.event.inputs.num-splits }} splits)"
@@ -53,7 +53,7 @@ jobs:
         include:
           - class: org.apache.spark.sql.execution.benchmark.TPCDSQueryBenchmark
             split: 1
-            benchmark-arg: "--data-location `pwd`/tpcds-sf-1"
+            benchmark-arg: "--data-location tpcds-sf-1"
     env:
       SPARK_BENCHMARK_FAILFAST: ${{ github.event.inputs.failfast }}
       SPARK_BENCHMARK_NUM_SPLITS: ${{ github.event.inputs.num-splits }}
