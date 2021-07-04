@@ -97,7 +97,10 @@ object Benchmarks {
       if (
           info.getName.endsWith("Benchmark") &&
           // Is TPCDS Datset provided?
-          (info.getName.endsWith("TPCDSQueryBenchmark") && args.contains("--data-location")) &&
+          (
+            !info.getName.endsWith("TPCDSQueryBenchmark") ||
+            (info.getName.endsWith("TPCDSQueryBenchmark") && args.contains("--data-location"))
+          ) &&
           matcher.matches(Paths.get(info.getName)) &&
           Try(runBenchmark).isSuccess && // Does this has a main method?
           !Modifier.isAbstract(clazz.getModifiers) // Is this a regular class?
