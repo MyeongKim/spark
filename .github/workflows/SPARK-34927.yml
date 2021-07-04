@@ -31,6 +31,7 @@ jobs:
     outputs:
       class: ${{ steps.set-matrix.outputs.class }}
       split: ${{ steps.set-matrix.outputs.split }}
+      num-split: ${{ steps.set-matrix.outputs.num-split }}
     env:
       SPARK_BENCHMARK_CLASS: ${{ github.event.inputs.class }}
       SPARK_BENCHMARK_NUM_SPLITS: ${{ github.event.inputs.num-splits }}
@@ -40,6 +41,7 @@ jobs:
       run: |
         echo "::set-output name=class::['"$SPARK_BENCHMARK_CLASS"']"
         echo "::set-output name=split::["`seq -s, 1 $SPARK_BENCHMARK_NUM_SPLITS`"]"
+        echo "::set-output name=num-split::['"$SPARK_BENCHMARK_NUM_SPLITS"']"
 
   benchmark:
     name: "Run benchmarks: ${{ matrix.class }} (JDK ${{ github.event.inputs.jdk }}, ${{ matrix.split }} out of ${{ github.event.inputs.num-splits }} splits)"
@@ -49,15 +51,17 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        class: ${{ fromJSON(needs.matrix-gen.outputs.class)}}
+        class: ${{ fromJSON(needs.matrix-gen.outputs.class) }}
         split: ${{ fromJSON(needs.matrix-gen.outputs.split) }}
+        num-split: ${{ fromJSON(needs.matrix-gen.outputs.num-split) }}
         include:
           - class: org.apache.spark.sql.execution.benchmark.TPCDSQueryBenchmark
-            split: 2
+            num-split: 1
+            split: 1
             benchmark-arg: "--data-location tpcds-sf-1"
     env:
       SPARK_BENCHMARK_FAILFAST: ${{ github.event.inputs.failfast }}
-      SPARK_BENCHMARK_NUM_SPLITS: ${{ github.event.inputs.num-splits }}
+      SPARK_BENCHMARK_NUM_SPLITS: ${{ matrix.num-split }}
       SPARK_BENCHMARK_CLASS: ${{ matrix.class }}
       SPARK_BENCHMARK_ARG: ${{ matrix.benchmark-arg }}
       SPARK_BENCHMARK_CUR_SPLIT: ${{ matrix.split }}
