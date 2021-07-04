@@ -53,7 +53,7 @@ jobs:
         split: ${{ fromJSON(needs.matrix-gen.outputs.split) }}
         include:
           - class: org.apache.spark.sql.execution.benchmark.TPCDSQueryBenchmark
-            split: 1
+            split: 2
             benchmark-arg: "--data-location tpcds-sf-1"
     env:
       SPARK_BENCHMARK_FAILFAST: ${{ github.event.inputs.failfast }}
