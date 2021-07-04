@@ -46,7 +46,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        class: ['org.apache.spark.sql.execution.benchmark.TPCDSQueryBenchmark']
+        class: ${{ fromJSON(needs.matrix-gen.outputs.class) }}
         split: ${{ fromJSON(needs.matrix-gen.outputs.split) }}
         include:
           - class: org.apache.spark.sql.execution.benchmark.TPCDSQueryBenchmark
